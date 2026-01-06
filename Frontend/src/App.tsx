@@ -27,16 +27,42 @@ import ChangePassword from "./pages/ChangePassword";
 import ProfilePhoto from "./pages/ProfilePhoto";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/signin" replace />;
+interface ProtectedRouteProps {
+  children: React.ReactNode;
 }
 
-function PublicRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <>{children}</>;
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/signin" replace />;
+  }
+  
+  return <>{children}</>;
+}
+
+interface PublicRouteProps {
+  children: React.ReactNode;
+}
+
+function PublicRoute({ children }: PublicRouteProps) {
+  const { isAuthenticated } = useAuth();
+  
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return <>{children}</>;
 }
 
 function AppRoutes() {

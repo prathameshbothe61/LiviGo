@@ -33,8 +33,14 @@ const DUMMY_OTP = "123456";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem("livigo_user");
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem("livigo_user");
+      return saved ? JSON.parse(saved) : null;
+    } catch (error) {
+      // Handle localStorage errors (e.g., in private browsing mode)
+      console.warn("Failed to read from localStorage:", error);
+      return null;
+    }
   });
   const [pendingAuth, setPendingAuth] = useState<{ emailOrPhone: string; password: string } | null>(null);
 
@@ -56,7 +62,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Accept dummy OTP or any 6-digit code for demo
     if (otp === DUMMY_OTP || otp.length === 6) {
       setUser(DUMMY_USER);
-      localStorage.setItem("livigo_user", JSON.stringify(DUMMY_USER));
+      try {
+        localStorage.setItem("livigo_user", JSON.stringify(DUMMY_USER));
+      } catch (error) {
+        console.warn("Failed to save to localStorage:", error);
+        // Continue even if localStorage fails
+      }
       setPendingAuth(null);
       return true;
     }
@@ -65,7 +76,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("livigo_user");
+    try {
+      localStorage.removeItem("livigo_user");
+    } catch (error) {
+      console.warn("Failed to remove from localStorage:", error);
+    }
   };
 
   return (

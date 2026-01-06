@@ -48,16 +48,22 @@ export default function Register() {
     agreeTerms: false,
   });
 
-  const updateForm = (key: string, value: any) => {
+  const updateForm = <K extends keyof typeof formData>(
+    key: K,
+    value: typeof formData[K]
+  ) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
-  const toggleArrayValue = (key: string, value: string) => {
-    const current = formData[key as keyof typeof formData] as string[];
+  const toggleArrayValue = (
+    key: "whoCanStay" | "idealFor" | "occupancyType",
+    value: string
+  ) => {
+    const current = formData[key];
     if (current.includes(value)) {
-      updateForm(key, current.filter((v) => v !== value));
+      updateForm(key, current.filter((v) => v !== value) as typeof formData[typeof key]);
     } else {
-      updateForm(key, [...current, value]);
+      updateForm(key, [...current, value] as typeof formData[typeof key]);
     }
   };
 

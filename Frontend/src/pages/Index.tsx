@@ -1,11 +1,15 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Dashboard from "./Dashboard";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
-  // For now, show the dashboard directly
-  // In a real app, this would check auth state
-  return <Dashboard />;
+  const { isAuthenticated } = useAuth();
+  
+  // Redirect authenticated users to dashboard, others to sign in
+  return isAuthenticated ? (
+    <Navigate to="/dashboard" replace />
+  ) : (
+    <Navigate to="/signin" replace />
+  );
 };
 
 export default Index;
